@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}食物資料庫｜食刻管理{% endblock %}
 {% block content %}
-<div class="grid grid-2">
     <div class="card">
         <h2>新增食物</h2>
         <form class="form" method="post">
@@ -19,15 +18,7 @@
             <button class="btn btn-primary" type="submit">新增食物</button>
         </form>
     </div>
-    <div class="card">
-        <h2>資料庫優先規則</h2>
-        <ul class="list">
-            <li>先比對完整輸入文字</li>
-            <li>再比對是否包含資料庫食物名稱</li>
-            <li>若無資料，Premium 呼叫 AI 新增食物資訊</li>
-        </ul>
-    </div>
-</div>
+
 
 <div class="card" style="margin-top:20px;">
     <h2>目前食物資料</h2>
