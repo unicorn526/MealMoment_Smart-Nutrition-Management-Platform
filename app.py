@@ -390,16 +390,52 @@ def summarize_logs(user_id: int, target_date: str) -> dict:
 
 def generate_advice(totals: dict, user: sqlite3.Row) -> list[str]:
     advice = []
+    goal = user["goal"]
+
+    # 基本熱量判斷
     if totals["calories"] > user["daily_calorie_goal"]:
-        advice.append("今日熱量已超過目標，建議晚餐或宵夜選擇低油、低糖食物。")
+        advice.append("今日熱量已超過目標，建議下一餐選擇低油、低糖、較清淡的餐點。")
     elif totals["calories"] < user["daily_calorie_goal"] * 0.65:
         advice.append("目前熱量攝取偏低，若還有活動量，可適度補充均衡正餐。")
     else:
         advice.append("今日熱量接近目標範圍，整體控制良好。")
 
+    # 根據健康目標給不同重點
+    if goal == "減重":
+        if totals["calories"] > user["daily_calorie_goal"]:
+            advice.append("減重目標下，今日熱量偏高，建議減少油炸食物、含糖飲料與宵夜。")
+        if totals["sugar"] > 50:
+            advice.append("糖分偏高可能影響減重效果，建議將手搖飲改成無糖或微糖。")
+        advice.append("減重期間建議優先選擇高蛋白、低油脂、足量蔬菜的餐點。")
+
+    elif goal == "增肌":
+        if totals["protein"] < user["protein_goal"]:
+            advice.append("增肌目標下，蛋白質攝取不足，建議補充雞胸肉、雞蛋、豆腐、魚類或無糖豆漿。")
+        if totals["calories"] < user["daily_calorie_goal"]:
+            advice.append("增肌需要足夠熱量，目前熱量尚未達標，可增加主食與蛋白質來源。")
+        advice.append("增肌期間建議每餐都安排蛋白質來源，並搭配規律重量訓練。")
+
+    elif goal == "控制血糖":
+        if totals["sugar"] > 50:
+            advice.append("控制血糖目標下，今日糖分偏高，建議減少甜點、含糖飲料與精緻澱粉。")
+        if totals["carbs"] > 250:
+            advice.append("碳水攝取較高，建議選擇全穀類、地瓜、糙米等較穩定的澱粉來源。")
+        advice.append("控制血糖時，建議每餐搭配蛋白質與蔬菜，避免單吃大量澱粉。")
+
+    elif goal == "控制血壓":
+        if totals["sodium"] > user["sodium_limit"]:
+            advice.append("控制血壓目標下，鈉含量偏高，建議減少湯品、醬料、加工食品與重口味外食。")
+        advice.append("控制血壓時，建議選擇清蒸、水煮、少醬料餐點，並增加蔬菜攝取。")
+
+    else:  # 維持健康
+        if totals["fiber"] < 20:
+            advice.append("膳食纖維偏低，建議增加蔬菜、水果、全穀類或地瓜。")
+        advice.append("維持健康目標下，建議保持熱量穩定、營養均衡與規律飲食。")
+
+    # Premium 才顯示更細的營養提醒
     if is_premium_user(user):
         if totals["protein"] < user["protein_goal"]:
-            advice.append("蛋白質攝取不足，可增加雞蛋、豆腐、無糖豆漿或雞胸肉。")
+            advice.append("蛋白質攝取低於目標，可增加雞蛋、豆腐、無糖豆漿或雞胸肉。")
         if totals["sodium"] > user["sodium_limit"]:
             advice.append("鈉含量偏高，建議減少湯品、加工食品與重口味外食。")
         if totals["sugar"] > 50:
@@ -568,7 +604,7 @@ def register():
                     (username, generate_password_hash(password), "free", daily_calorie_goal, protein_goal, goal),
                 )
                 db.commit()
-                flash("註冊成功，預設為 Free 免費版，請登入。", "success")
+                flash("註冊成功，請登入。", "success")
                 return redirect(url_for("login"))
             except sqlite3.IntegrityError:
                 error = "這個帳號已經被使用。"
@@ -751,6 +787,14 @@ def plans():
 def init_db_command() -> None:
     init_db()
     print("Initialized the database.")
+
+@app.route("/admin/make-premium/<username>")
+def make_premium(username: str):
+    db = get_db()
+    db.execute("UPDATE users SET plan = ? WHERE username = ?", ("premium", username))
+    db.commit()
+    flash(f"{username} 已切換為 Premium。", "success")
+    return redirect(url_for("dashboard"))
 
 
 if __name__ == "__main__":
