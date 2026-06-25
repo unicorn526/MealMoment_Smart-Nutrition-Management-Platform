@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}訂閱方案｜食刻管理{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>訂閱方案</h2>
+    <p>選擇適合您的訂閱方案，享受更全面的健康飲食管理服務。</p>
+</div>
+<div class="grid grid-3" style="margin-top:20px;">
+    <div class="card price-card free-plan">
+        <span class="badge badge-free">Free</span>
+        <h3>免費版</h3>
+        <div class="price">$0</div>
+        <ul class="clean">
+            <li>基本飲食紀錄</li>
+            <li>每日熱量計算</li>
+            <li>基本營養分析</li>
+            <li>使用資料庫食物</li>
+        </ul>
+    </div>
+    <div class="card price-card premium-plan">
+        <span class="badge badge-premium">Premium</span>
+        <h3>個人版</h3>
+        <div class="price">$199/月</div>
+        <ul class="clean">
+            <li>輸入任意食物</li>
+            <li>使用 AI 估算</li>
+            <li>進階營養分析</li>
+            <li>一週熱量趨勢圖</li>
+            <li>更完整飲食建議</li>
+        </ul>
+    </div>
+    <div class="card price-card family-plan">
+        <span class="badge">Family</span>
+        <h3>家庭版</h3>
+        <div class="price">$399/月</div>
+        <ul class="clean">
+            <li>多人帳號</li>
+            <li>家庭健康管理</li>
+            <li>長輩飲食提醒</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

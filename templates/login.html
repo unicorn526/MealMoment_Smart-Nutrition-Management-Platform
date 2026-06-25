@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}登入｜食刻管理{% endblock %}
+{% block content %}
+<div class="grid grid-2">
+    <div class="card">
+        <h2>登入</h2>
+        <form class="form" method="post">
+            <label>帳號</label>
+            <input name="username" required>
+            <label>密碼</label>
+            <input name="password" type="password" required>
+            <button class="btn btn-primary" type="submit">登入</button>
+        </form>
+    </div>
+    <div class="card">
+        <h2>還沒有帳號？</h2>
+        <p>先建立一個帳號，設定每日熱量與蛋白質目標，就可以開始記錄飲食。</p>
+        <a class="btn btn-secondary" href="{{ url_for('register') }}">前往註冊</a>
+        <p>使用下列帳號登入，展示 Free 與 Premium 差異。</p>
+        <div class="demo-account">
+            <span class="badge badge-free">Free 免費版</span>
+            <p><strong>帳號：</strong>free_demo<br><strong>密碼：</strong>free123</p>
+        </div>
+        <div class="demo-account">
+            <span class="badge badge-premium">Premium 付費版</span>
+            <p><strong>帳號：</strong>premium_demo<br><strong>密碼：</strong>premium123</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

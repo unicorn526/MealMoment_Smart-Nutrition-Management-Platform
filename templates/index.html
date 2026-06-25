@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}食刻管理｜健康飲食管理平台{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-card">
+        <span class="badge">健康飲食管理平台</span>
+        <h1>精準管理每一餐，健康就在下一刻。</h1>
+        <p>食刻管理協助使用者直接輸入餐點描述，並根據健康目標提供個人化飲食建議。</p>
+        <div class="actions">
+            <a class="btn btn-primary" href="{{ url_for('register') }}">免費註冊</a>
+            <a class="btn btn-secondary" href="{{ url_for('login') }}">已有帳號，登入</a>
+        </div>
+    </div>
+    <div class="phone-mock">
+        <div class="phone-screen">
+            <h3>今日飲食摘要</h3>
+            <div class="kpi-circle"><div>1680<br><small>kcal</small></div></div>
+            <ul class="clean">
+                <li>餐點營養估算</li>
+                <li>糖分與鈉含量提醒</li>
+                <li>一週熱量趨勢圖</li>
+                <li>個人化健康建議</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="grid grid-3">
+    <div class="card">
+        <h3>飲食紀錄</h3>
+        <p>快速記錄早餐、午餐、晚餐與點心，建立長期健康資料。</p>
+    </div>
+    <div class="card">
+        <h3>營養分析</h3>
+        <p>分析熱量、蛋白質、碳水、脂肪、糖分、纖維與鈉含量。</p>
+    </div>
+    <div class="card">
+        <h3>目標追蹤</h3>
+        <p>依照減重、增肌、控制血糖或維持健康，產生飲食建議。</p>
+    </div>
+</section>
+{% endblock %}

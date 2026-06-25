@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}食物資料庫｜食刻管理{% endblock %}
+{% block content %}
+<div class="grid grid-2">
+    <div class="card">
+        <h2>新增食物</h2>
+        <form class="form" method="post">
+            <label>食物名稱</label>
+            <input name="name" required placeholder="例如：鮭魚便當">
+            <div class="grid grid-2">
+                <div><label>熱量 kcal</label><input name="calories" type="number" step="0.1" required></div>
+                <div><label>蛋白質 g</label><input name="protein" type="number" step="0.1" value="0"></div>
+                <div><label>碳水 g</label><input name="carbs" type="number" step="0.1" value="0"></div>
+                <div><label>脂肪 g</label><input name="fat" type="number" step="0.1" value="0"></div>
+                <div><label>糖分 g</label><input name="sugar" type="number" step="0.1" value="0"></div>
+                <div><label>纖維 g</label><input name="fiber" type="number" step="0.1" value="0"></div>
+                <div><label>鈉 mg</label><input name="sodium" type="number" step="0.1" value="0"></div>
+            </div>
+            <button class="btn btn-primary" type="submit">新增食物</button>
+        </form>
+    </div>
+    <div class="card">
+        <h2>資料庫優先規則</h2>
+        <ul class="list">
+            <li>先比對完整輸入文字</li>
+            <li>再比對是否包含資料庫食物名稱</li>
+            <li>若無資料，Premium 呼叫 AI 新增食物資訊</li>
+        </ul>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <h2>目前食物資料</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>名稱</th><th>來源</th><th>查詢鍵</th><th>熱量</th><th>蛋白質</th><th>碳水</th><th>脂肪</th><th>糖分</th><th>纖維</th><th>鈉</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for food in foods %}
+                <tr>
+                    <td>{{ food.name }}</td>
+                    <td><span class="badge">{{ food.source }}</span></td>
+                    <td><small>{{ food.input_key or '-' }}</small></td>
+                    <td>{{ food.calories }}</td>
+                    <td>{{ food.protein }}</td>
+                    <td>{{ food.carbs }}</td>
+                    <td>{{ food.fat }}</td>
+                    <td>{{ food.sugar }}</td>
+                    <td>{{ food.fiber }}</td>
+                    <td>{{ food.sodium }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

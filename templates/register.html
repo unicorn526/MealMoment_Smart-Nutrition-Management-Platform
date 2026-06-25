@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}註冊｜食刻管理{% endblock %}
+{% block content %}
+<div class="center-page">
+    <div class="card">
+        <h2>建立帳號</h2>
+        <p>帳號預設為免費版</p>
+        <form class="form" method="post">
+            <label>帳號</label>
+            <input name="username" required placeholder="例如：student01">
+            <label>密碼</label>
+            <input name="password" type="password" required>
+            <label>健康目標</label>
+            <select name="goal">
+                <option>維持健康</option>
+                <option>減重</option>
+                <option>增肌</option>
+                <option>控制血糖</option>
+                <option>控制血壓</option>
+            </select>
+            <label>每日熱量目標 kcal</label>
+            <input name="daily_calorie_goal" type="number" value="1800" min="800" max="5000">
+            <label>每日蛋白質目標 g</label>
+            <input name="protein_goal" type="number" value="70" min="20" max="250">
+            <button class="btn btn-primary" type="submit">註冊</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

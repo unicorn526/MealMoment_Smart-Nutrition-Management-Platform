@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}新增飲食｜食刻管理{% endblock %}
+{% block content %}
+<div class="card plan-banner {{ 'premium-banner' if is_premium else 'free-banner' }}">
+    <span class="badge {{ 'badge-premium' if is_premium else 'badge-free' }}">{{ g.plan_name }}</span>
+    <h2>新增飲食紀錄</h2>
+    <p>
+        {% if is_premium %}
+            直接輸入食物名稱及分量，AI 自動估算營養成分。
+        {% else %}
+            使用資料庫對應食物，可在資料庫新增資訊。
+        {% endif %}
+    </p>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <form class="form" method="post">
+            <label>日期</label>
+            <input name="log_date" type="date" value="{{ today }}" required>
+            <label>餐別</label>
+            <select name="meal_type" required>
+                <option>早餐</option>
+                <option>午餐</option>
+                <option>晚餐</option>
+                <option>點心</option>
+                <option>宵夜</option>
+            </select>
+            <label>食物名稱 / 餐點描述</label>
+            <textarea name="food_description" rows="4" required placeholder="例如：雞腿便當；一個雞腿便當，飯半碗；大杯半糖珍珠奶茶"></textarea>
+            <label>份量倍率</label>
+            <input name="quantity" type="number" step="0.1" value="1" min="0.1" required>
+            <button class="btn btn-primary" type="submit">送出</button>
+        </form>
+    </div>
+    <div class="card">
+        <h2>輸入範例</h2>
+        <p>系統會用文字比對資料庫中的食物名稱。</p>
+        <ul class="clean">
+            {% for example in examples %}
+                <li>{{ example }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

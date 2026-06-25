@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}食刻管理{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a class="brand" href="{{ url_for('index') }}">食刻管理</a>
+        <div class="navlinks">
+            {% if g.user %}
+                <a href="{{ url_for('dashboard') }}">儀表板</a>
+                <a href="{{ url_for('add_log') }}">新增飲食</a>
+                <a href="{{ url_for('foods') }}">食物資料庫</a>
+                <a href="{{ url_for('plans') }}">方案</a>
+                <span class="badge {{ 'badge-premium' if g.is_premium else 'badge-free' }}">{{ g.user['username'] }}｜{{ g.plan_name }}</span>
+                <a href="{{ url_for('logout') }}">登出</a>
+            {% else %}
+                <a href="{{ url_for('plans') }}">方案</a>
+                <a href="{{ url_for('login') }}">登入</a>
+                <a class="btn btn-primary" href="{{ url_for('register') }}">開始使用</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">食刻管理｜Copyright © 2026 盧柏安</footer>
+</body>
+</html>

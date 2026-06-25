@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}儀表板｜食刻管理{% endblock %}
+{% block content %}
+<div class="card plan-banner {{ 'premium-banner' if is_premium else 'free-banner' }}">
+    <div>
+        <span class="badge {{ 'badge-premium' if is_premium else 'badge-free' }}">{{ g.plan_name }}</span>
+        <h2>{{ 'Premium 完整健康分析' if is_premium else 'Free 基本健康紀錄' }}</h2>
+        <p>
+            {% if is_premium %}
+                可查看進階營養分析、一週趨勢圖。
+            {% else %}
+                提供基本飲食紀錄與熱量統計。
+            {% endif %}
+        </p>
+    </div>
+    {% if not is_premium %}
+        <a class="btn btn-primary" href="{{ url_for('plans') }}">升級 Premium</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;">
+        <div>
+            <h2>今日儀表板</h2>
+            <p>目標：{{ g.user['goal'] }}｜每日熱量目標：{{ g.user['daily_calorie_goal'] }} kcal</p>
+        </div>
+        <form method="get" class="actions" style="margin:0;">
+            <input type="date" name="date" value="{{ target_date }}">
+            <button class="btn btn-secondary" type="submit">切換日期</button>
+            <a class="btn btn-primary" href="{{ url_for('add_log') }}">新增飲食</a>
+        </form>
+    </div>
+    <div class="progress" title="熱量進度">
+        <span style="width: {{ calorie_percent }}%"></span>
+    </div>
+    <p>目前已達成 {{ calorie_percent }}%，剩餘可攝取約 {{ remaining|round(0) }} kcal。</p>
+</div>
+
+<div class="kpis" style="margin:20px 0;">
+    <div class="kpi"><small>總熱量</small><strong>{{ totals.calories|round(0) }}</strong> kcal</div>
+    <div class="kpi"><small>蛋白質</small><strong>{{ totals.protein|round(1) }}</strong> g</div>
+    <div class="kpi"><small>碳水</small><strong>{{ totals.carbs|round(1) }}</strong> g</div>
+    <div class="kpi"><small>脂肪</small><strong>{{ totals.fat|round(1) }}</strong> g</div>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3>飲食建議</h3>
+        <ul class="clean">
+            {% for item in advice %}
+                <li>{{ item }}</li>
+            {% endfor %}
+            <br>
+        </ul>
+        <ul class="list">
+            <li>營養數值為系統估算，若有慢性病或醫療需求，仍應諮詢醫師或營養師。</li>
+        </ul>
+    </div>
+
+    {% if is_premium %}
+    <div class="card">
+        <h3>進階營養分析</h3>
+
+        {% set sugar_limit = 50 %}
+        {% set fiber_goal = 25 %}
+        {% set sodium_limit = g.user['sodium_limit'] %}
+
+        <div class="kpis" style="grid-template-columns:repeat(3,1fr);">
+            <div class="kpi">
+                <small>糖分</small>
+                <strong>{{ totals.sugar|round(1) }}</strong> g
+                <p class="nutrient-target">建議上限：{{ sugar_limit }} g</p>
+
+                <div class="mini-progress">
+                    <span style="width: {{ [totals.sugar / sugar_limit * 100, 100] | min }}%"></span>
+                </div>
+
+                {% if totals.sugar > sugar_limit %}
+                    <span class="status-badge status-warning">偏高</span>
+                {% else %}
+                    <span class="status-badge status-good">控制良好</span>
+                {% endif %}
+            </div>
+
+            <div class="kpi">
+                <small>膳食纖維</small>
+                <strong>{{ totals.fiber|round(1) }}</strong> g
+                <p class="nutrient-target">建議目標：{{ fiber_goal }} g</p>
+
+                <div class="mini-progress">
+                    <span style="width: {{ [totals.fiber / fiber_goal * 100, 100] | min }}%"></span>
+                </div>
+
+                {% if totals.fiber >= fiber_goal %}
+                    <span class="status-badge status-good">已達標</span>
+                {% else %}
+                    <span class="status-badge status-warning">不足</span>
+                {% endif %}
+            </div>
+
+            <div class="kpi">
+                <small>鈉含量</small>
+                <strong>{{ totals.sodium|round(0) }}</strong> mg
+                <p class="nutrient-target">建議上限：{{ sodium_limit }} mg</p>
+
+                <div class="mini-progress">
+                    <span style="width: {{ [totals.sodium / sodium_limit * 100, 100] | min }}%"></span>
+                </div>
+
+                {% if totals.sodium > sodium_limit %}
+                    <span class="status-badge status-danger">偏高</span>
+                {% else %}
+                    <span class="status-badge status-good">控制良好</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="nutrition-summary" style="margin-top:18px;">
+            <h4>今日改善重點</h4>
+            <ul class="clean">
+                {% if totals.sugar > sugar_limit %}
+                    <li>糖分攝取偏高，建議減少含糖飲料、甜點或加工食品。</li>
+                {% endif %}
+
+                {% if totals.fiber < fiber_goal %}
+                    <li>膳食纖維不足，建議增加蔬菜、水果、地瓜、燕麥或全穀類。</li>
+                {% endif %}
+
+                {% if totals.sodium > sodium_limit %}
+                    <li>鈉含量偏高，建議減少湯品、醬料、滷味、泡麵與重口味外食。</li>
+                {% endif %}
+
+                {% if totals.sugar <= sugar_limit and totals.fiber >= fiber_goal and totals.sodium <= sodium_limit %}
+                    <li>今日糖分、纖維與鈉含量控制良好，可持續維持目前飲食習慣。</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <div class="card locked-card">
+        <h3>進階營養分析</h3>
+        <p>糖分、纖維、鈉含量等完整飲食風險提醒為 Premium 功能。</p>
+        <a class="btn btn-secondary" href="{{ url_for('plans') }}">查看 Premium 方案</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="grid grid-2" style="margin-top:20px;">
+    <div class="card">
+        <h3>一週熱量趨勢</h3>
+        <canvas id="calorieChart" height="220"></canvas>
+    </div>
+
+        {% if is_premium %}
+        <div class="card">  
+            <h3>專屬 AI 分析</h3>
+            <p style="color:var(--muted);">
+                根據今日飲食紀錄、營養總量與個人目標，產生專屬飲食分析。
+            </p>
+
+            <form method="post" action="{{ url_for('ai_analysis') }}">
+                <input type="hidden" name="target_date" value="{{ target_date }}">
+                <button class="btn btn-primary" type="submit">產生專屬 AI 分析</button>
+            </form>
+
+            {% if ai_analysis %}
+                <div class="ai-result" style="margin-top:20px;">
+                    <h4>整體摘要</h4>
+                    <p>{{ ai_analysis.overview }}</p>
+
+                    <h4>做得好的地方</h4>
+                    <ul class="clean">
+                        {% for item in ai_analysis.positive_points %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h4>需要注意的地方</h4>
+                    <ul class="clean">
+                        {% for item in ai_analysis.risk_points %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h4>改善建議</h4>
+                    <ul class="clean">
+                        {% for item in ai_analysis.suggestions %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h4>下一餐建議</h4>
+                    <p>{{ ai_analysis.next_meal_suggestion }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {% else %}
+        <div class="card locked-card">  
+            <h3>專屬 AI 分析</h3>
+                    <strong>Premium 專屬功能</strong>
+                    <p>升級後可根據當日飲食紀錄產生 AI 飲食分析、外食建議與個人化改善方向。</p>
+                    <a class="btn btn-secondary" href="{{ url_for('plans') }}">查看 Premium 方案</a>
+        </div>
+        {% endif %}
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <h3>{{ target_date }} 飲食紀錄</h3>
+    {% if logs %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>餐別</th><th>原始輸入</th><th>估算食物</th><th>來源</th><th>份量</th><th>熱量</th><th>蛋白質</th><th>鈉</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in logs %}
+                <tr>
+                    <td>{{ row.meal_type }}</td>
+                    <td>{{ row.original_input or "-" }}</td>
+                    <td>{{ row.name }}</td>
+                    <td><span class="badge">{{ row.source }}</span></td>
+                    <td>{{ row.quantity }}</td>
+                    <td>{{ (row.calories * row.quantity)|round(0) }}</td>
+                    <td>{{ (row.protein * row.quantity)|round(1) }}</td>
+                    <td>{{ (row.sodium * row.quantity)|round(0) }}</td>
+                    <td>
+                        <small style="display:block;color:var(--muted);max-width:260px;">{{ row.note }}</small>
+                        <form method="post" action="{{ url_for('delete_log', log_id=row.id) }}">
+                            <button class="btn btn-danger" type="submit">刪除</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p>這一天還沒有飲食紀錄。</p>
+    {% endif %}
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('calorieChart');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ week_labels|tojson }},
+        datasets: [{
+            label: '每日熱量 kcal',
+            data: {{ week_calories|tojson }}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+{% endblock %}
